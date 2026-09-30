@@ -226,107 +226,6 @@ html.access-granted #access-gate { display: none; }
 }
 #status-text { font-size: 11.5px; color: var(--muted); font-weight: 600; letter-spacing: .1px; }
 
-/* ── HEADER SEARCH ── */
-#search-toggle-btn.active {
-  background: var(--accent-soft);
-  color: var(--accent-strong);
-}
-#search-toggle-btn::after {
-  content: none;
-}
-#search-panel {
-  display: none;
-  position: absolute;
-  top: 100%;
-  left: 24px;
-  margin-top: 8px;
-  width: min(340px, calc(100vw - 48px));
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  box-shadow: 0 16px 36px rgba(20,22,28,.12);
-  padding: 14px;
-  z-index: 110;
-}
-#search-panel.open { display: block; }
-#search-input-wrap {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--signature-bg);
-  border-radius: 999px;
-  padding: 8px 14px;
-  color: var(--muted);
-  transition: background .15s, box-shadow .15s;
-}
-#search-input-wrap:focus-within {
-  box-shadow: 0 0 0 3px var(--accent-glow);
-  background: #fff;
-}
-#search-input {
-  flex: 1;
-  min-width: 0;
-  border: none;
-  background: transparent;
-  outline: none;
-  font-family: var(--font-body);
-  font-size: 13px;
-  color: var(--text);
-}
-#search-input::placeholder { color: var(--muted); }
-#search-clear-btn {
-  display: none;
-  align-items: center;
-  justify-content: center;
-  width: 20px; height: 20px;
-  border: none;
-  background: transparent;
-  color: var(--muted);
-  cursor: pointer;
-  border-radius: 50%;
-  flex-shrink: 0;
-  transition: background .15s, color .15s;
-}
-#search-clear-btn:hover { background: var(--action-hover); color: var(--text); }
-#search-input-wrap.has-value #search-clear-btn { display: flex; }
-#search-depth-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 10px;
-  flex-wrap: wrap;
-}
-#search-depth-label {
-  font-size: 11px;
-  font-weight: 700;
-  font-family: var(--font-display);
-  color: var(--muted);
-  letter-spacing: .2px;
-  flex-shrink: 0;
-}
-#search-depth-chips { display: flex; gap: 6px; flex-wrap: wrap; }
-.depth-chip {
-  padding: 5px 12px;
-  border-radius: 999px;
-  border: none;
-  background: var(--signature-bg);
-  font-size: 11.5px;
-  font-weight: 700;
-  font-family: var(--font-display);
-  color: var(--muted);
-  cursor: pointer;
-  transition: all .15s;
-}
-.depth-chip:hover { background: var(--action-hover); color: var(--text); }
-.depth-chip.active { background: var(--accent); color: #fff; }
-#search-result-count {
-  margin-top: 10px;
-  font-size: 11.5px;
-  color: var(--muted);
-  font-weight: 600;
-  min-height: 14px;
-}
-
 /* ── LAYOUT (channel sidebar + feed) ── */
 #layout {
   display: flex;
@@ -1007,11 +906,7 @@ svg{stroke-linecap:round;stroke-linejoin:round}
 #status-dot{width:7px;height:7px}
 .action-btn{width:34px;height:34px}
 .action-btn svg{width:17px;height:17px}
-#search-toggle-btn{width:38px;height:38px}
-#search-toggle-btn svg{width:19px;height:19px}
-#search-depth-label,#filter-bar-label{font-size:12px}
-.depth-chip{font-size:12.5px;font-weight:600}
-#search-result-count{font-size:12.5px}
+#filter-bar-label{font-size:12px}
 #filter-bar{scrollbar-width:thin;scrollbar-color:#d5dbe7 transparent}
 .filter-chip{font-size:14px;font-weight:500}
 .filter-chip svg{width:17px;height:17px;flex-shrink:0}
@@ -1029,7 +924,7 @@ svg{stroke-linecap:round;stroke-linejoin:round}
 .msg-bubble{border:1px solid var(--border);padding:16px 20px 10px;transition:box-shadow .2s,border-color .2s}
 .msg-card:hover .msg-bubble{transform:none;border-color:#d9e2f3;box-shadow:var(--shadow-hover)}
 .msg-text{font-size:16px;line-height:1.8}
-.msg-text a{color:var(--accent-strong);text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px;word-break:break-all}
+.msg-text a{color:var(--accent-strong);text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}
 .msg-actions{gap:2px;margin-top:10px;margin-inline-start:-8px}
 .msg-drive-open{font-size:12.5px}
 .action-btn::after{font-size:12px}
@@ -1042,9 +937,86 @@ svg{stroke-linecap:round;stroke-linejoin:round}
   .msg-avatar-col{padding-top:24px}
   .msg-avatar-col .avatar,.msg-avatar-col .avatar-placeholder{width:36px;height:36px;font-size:15px}
   .msg-bubble{padding:14px 15px 8px}
-  #search-input,#filter-search{font-size:16px}
+  #filter-search{font-size:16px}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+/* ── SEARCH REDESIGN: header pill, status, dedicated search page ── */
+#header-right{gap:12px}
+#header-search{display:flex;align-items:center;gap:9px;height:40px;min-width:240px;padding-inline:14px 8px;border:1px solid var(--border);border-radius:999px;background:var(--signature-bg);color:var(--muted);font:500 13.5px var(--font-body);cursor:pointer;transition:background .15s,border-color .15s,box-shadow .15s}
+#header-search:hover{background:#fff;border-color:#cfd9ee;box-shadow:0 0 0 3px var(--accent-glow);color:var(--text)}
+#header-search svg{width:17px;height:17px;flex-shrink:0}
+.hs-label{flex:1;text-align:start}
+.hs-kbd{font:600 11px var(--font-display);background:#fff;border:1px solid var(--border);border-radius:6px;padding:2px 8px;color:var(--muted)}
+#status-pill{height:34px;gap:7px;padding:0 13px 0 12px;border:1px solid var(--border);background:#fff;border-radius:999px;transition:background .2s,border-color .2s}
+#status-dot{background:#98a2b3}
+#status-pill.ok{background:#ecfdf3;border-color:#c7f0d8}
+#status-pill.ok #status-dot{background:#12b76a}
+#status-pill.ok #status-text{color:#067647}
+#status-pill.err{background:#fef3f2;border-color:#fdd3ce}
+#status-pill.err #status-dot{background:#f04438}
+#status-pill.err #status-text{color:#b42318}
+
+#search-page{display:none}
+body.search-mode #search-page{display:block}
+body.search-mode #layout,body.search-mode #scroll-bottom-btn{display:none!important}
+.sp-wrap{max-width:740px;margin:0 auto;padding:0 16px}
+#sp-top{position:sticky;top:60px;z-index:80;background:rgba(246,248,252,.92);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
+#sp-bar{display:flex;align-items:center;gap:10px;padding:12px 0}
+#sp-back{width:44px;height:44px;flex-shrink:0;border-radius:50%;border:1px solid var(--border);background:#fff;color:var(--text);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .15s,color .15s}
+#sp-back:hover{background:var(--accent-soft);color:var(--accent-strong)}
+#sp-input-wrap{flex:1;min-width:0;display:flex;align-items:center;gap:10px;height:48px;padding:0 16px;background:#fff;border:1.5px solid var(--border);border-radius:999px;color:var(--muted);box-shadow:var(--shadow-card);transition:border-color .15s,box-shadow .15s,color .15s}
+#sp-input-wrap:focus-within{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-glow);color:var(--accent)}
+#sp-input{flex:1;min-width:0;border:none;outline:none;background:transparent;font:500 16px var(--font-body);color:var(--text)}
+#sp-input::placeholder{color:var(--muted);font-weight:400}
+#sp-clear{display:none;width:26px;height:26px;border:none;border-radius:50%;background:var(--signature-bg);color:var(--muted);cursor:pointer;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s,color .15s}
+#sp-clear:hover{background:var(--action-hover);color:var(--text)}
+#sp-input-wrap.has-value #sp-clear{display:flex}
+#sp-filters{display:flex;flex-direction:column;gap:10px;padding:16px 0 4px}
+.sp-row{display:flex;align-items:center;gap:10px;min-width:0}
+.sp-label{width:42px;flex-shrink:0;font:700 12px var(--font-display);color:var(--muted)}
+.sp-chips{flex:1;min-width:0;display:flex;gap:6px;overflow-x:auto;padding:2px 0;scrollbar-width:none}
+.sp-chips::-webkit-scrollbar{display:none}
+.sp-chip{flex-shrink:0;display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 14px;border-radius:999px;border:1px solid var(--border);background:#fff;color:var(--muted);font:500 13.5px var(--font-display);white-space:nowrap;cursor:pointer;transition:all .15s}
+.sp-chip:hover{background:var(--action-hover);color:var(--text)}
+.sp-chip.active{background:var(--accent-soft);border-color:#c9daff;color:var(--accent-strong);font-weight:600}
+.sp-chip .n{font-size:11.5px;font-weight:600;opacity:.7}
+.sp-chip .chip-avatar{width:20px;height:20px}
+#sp-summary{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 2px 6px;font:500 13.5px var(--font-display);color:var(--muted)}
+#sp-summary b{color:var(--text);font-weight:700}
+#sp-sort{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 13px;border-radius:999px;border:1px solid var(--border);background:#fff;color:var(--muted);font:600 12.5px var(--font-display);cursor:pointer;transition:all .15s}
+#sp-sort:hover{background:var(--action-hover);color:var(--accent-strong)}
+#sp-results{display:flex;flex-direction:column;gap:16px;padding-top:6px}
+#sp-more{display:none;margin:18px 0 90px}
+#sp-landing{display:flex;flex-direction:column;gap:18px;padding:18px 0 80px}
+.sp-card{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow-card)}
+.sp-card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.sp-card h3{font:700 14px var(--font-display);color:var(--text)}
+.sp-link-btn{border:none;background:none;color:var(--accent-strong);font:600 12.5px var(--font-display);cursor:pointer;padding:4px 6px;border-radius:8px}
+.sp-link-btn:hover{background:var(--accent-soft)}
+#sp-recent-list{display:flex;flex-wrap:wrap;gap:8px}
+.sp-tip{display:flex;gap:12px;align-items:baseline;font-size:14px;line-height:2;color:var(--muted)}
+.sp-tip code{flex-shrink:0;background:var(--signature-bg);border-radius:7px;padding:2px 9px;font:600 12.5px ui-monospace,Menlo,Consolas,monospace;color:var(--accent-strong);direction:rtl;unicode-bidi:isolate}
+#sp-empty{display:none;text-align:center;padding:64px 20px 90px}
+.sp-empty-icon{width:64px;height:64px;margin:0 auto 18px;border-radius:20px;background:var(--accent-soft);color:var(--accent-strong);display:flex;align-items:center;justify-content:center}
+.sp-empty-title{font:700 17px var(--font-display);margin-bottom:6px}
+.sp-empty-sub{font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:18px}
+#sp-empty-reset{padding:10px 20px;border:none;border-radius:999px;background:var(--accent);color:#fff;font:700 13.5px var(--font-display);cursor:pointer;transition:background .15s}
+#sp-empty-reset:hover{background:var(--accent-strong)}
+mark.hl{background:#ffe98a;color:inherit;border-radius:4px;padding:1px 2px;margin:0 -1px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.msg-text strong{font-weight:700}
+.msg-text em{font-style:italic}
+.msg-text code{font:500 .88em ui-monospace,Menlo,Consolas,monospace;background:var(--signature-bg);border-radius:6px;padding:1px 6px;direction:ltr;unicode-bidi:isolate}
+.msg-text a{overflow-wrap:anywhere;word-break:normal}
+.msg-text a:hover{color:var(--accent);text-decoration-thickness:2px}
+@media(max-width:640px){
+  #header-search{min-width:0;width:40px;padding:0;justify-content:center}
+  .hs-label,.hs-kbd{display:none}
+  #sp-back{width:40px;height:40px}
+  #sp-input-wrap{height:44px}
+  .sp-label{width:36px}
+  #status-pill{padding:0 11px 0 10px}
+}
 </style>
 </head>
 <body>
@@ -1081,32 +1053,15 @@ svg{stroke-linecap:round;stroke-linejoin:round}
     פיד חדשות
   </div>
   <div id="header-right">
-    <button id="search-toggle-btn" class="action-btn" type="button" aria-label="חיפוש הודעות" onclick="toggleSearchPanel()">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <button id="header-search" type="button" aria-label="חיפוש בהודעות" onclick="openSearchPage()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <span class="hs-label">חיפוש בהודעות</span>
+      <span class="hs-kbd">/</span>
     </button>
     <div id="status-pill">
       <span id="status-dot" class="pulse"></span>
       <span id="status-text">טוען...</span>
     </div>
-  </div>
-  <div id="search-panel">
-    <div id="search-input-wrap">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input id="search-input" type="text" placeholder="חיפוש בהודעות..." oninput="onMessageSearch(this.value)" autocomplete="off">
-      <button id="search-clear-btn" type="button" onclick="clearMessageSearch()" aria-label="נקה חיפוש">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-    </div>
-    <div id="search-depth-row">
-      <span id="search-depth-label">טווח חיפוש</span>
-      <div id="search-depth-chips">
-        <button type="button" class="depth-chip" data-depth="100" onclick="setSearchDepth(100,this)">100</button>
-        <button type="button" class="depth-chip active" data-depth="300" onclick="setSearchDepth(300,this)">300</button>
-        <button type="button" class="depth-chip" data-depth="500" onclick="setSearchDepth(500,this)">500</button>
-        <button type="button" class="depth-chip" data-depth="0" onclick="setSearchDepth(0,this)">הכל</button>
-      </div>
-    </div>
-    <div id="search-result-count"></div>
   </div>
 </div>
 
@@ -1150,6 +1105,78 @@ svg{stroke-linecap:round;stroke-linejoin:round}
 </div>
 
 </div><!-- /#layout -->
+
+<div id="search-page">
+  <div id="sp-top">
+    <div class="sp-wrap">
+      <div id="sp-bar">
+        <button id="sp-back" type="button" aria-label="חזרה לפיד" onclick="closeSearchPage()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+        </button>
+        <div id="sp-input-wrap">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="flex-shrink:0"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input id="sp-input" type="text" placeholder="חיפוש בכל ההודעות" autocomplete="off" enterkeyhint="search" oninput="spOnInput(this.value)">
+          <button id="sp-clear" type="button" aria-label="נקה חיפוש" onclick="spClear()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="sp-wrap" id="sp-body">
+    <div id="sp-filters">
+      <div class="sp-row"><span class="sp-label">תקופה</span>
+        <div class="sp-chips">
+          <button type="button" class="sp-chip active" data-kind="time" data-v="0">כל הזמן</button>
+          <button type="button" class="sp-chip" data-kind="time" data-v="24">24 שעות</button>
+          <button type="button" class="sp-chip" data-kind="time" data-v="168">7 ימים</button>
+          <button type="button" class="sp-chip" data-kind="time" data-v="720">30 ימים</button>
+        </div>
+      </div>
+      <div class="sp-row"><span class="sp-label">סוג</span>
+        <div class="sp-chips">
+          <button type="button" class="sp-chip active" data-kind="media" data-v="all">הכל</button>
+          <button type="button" class="sp-chip" data-kind="media" data-v="image">עם תמונה</button>
+          <button type="button" class="sp-chip" data-kind="media" data-v="video">עם וידאו</button>
+          <button type="button" class="sp-chip" data-kind="media" data-v="link">עם קישור</button>
+        </div>
+      </div>
+      <div class="sp-row" id="sp-chan-row" style="display:none"><span class="sp-label">ערוץ</span>
+        <div class="sp-chips" id="sp-channels"></div>
+      </div>
+    </div>
+
+    <div id="sp-landing">
+      <div class="sp-card" id="sp-recent-card" style="display:none">
+        <div class="sp-card-head"><h3>חיפושים אחרונים</h3><button type="button" class="sp-link-btn" onclick="spClearRecent()">נקה</button></div>
+        <div id="sp-recent-list"></div>
+      </div>
+      <div class="sp-card">
+        <div class="sp-card-head"><h3>טיפים לחיפוש</h3></div>
+        <div class="sp-tip"><code>מילה1 מילה2</code><span>מציג הודעות שמכילות את כל המילים, בכל סדר</span></div>
+        <div class="sp-tip"><code>"ביטוי מדויק"</code><span>מחפש את הביטוי כפי שהוא, ברצף</span></div>
+        <div class="sp-tip"><code>-מילה</code><span>מסיר הודעות שמכילות את המילה</span></div>
+        <div class="sp-tip"><code>שם ערוץ</code><span>אפשר לחפש גם לפי שם הערוץ, או לסנן לפי ערוץ בתוצאות</span></div>
+      </div>
+    </div>
+
+    <div id="sp-summary" style="display:none">
+      <span id="sp-count"></span>
+      <button id="sp-sort" type="button" onclick="spToggleSort()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 4v16M7 20l-3-3M7 20l3-3M17 20V4M17 4l-3 3M17 4l3 3"/></svg>
+        <span id="sp-sort-label">החדשות ראשונות</span>
+      </button>
+    </div>
+    <div id="sp-results"></div>
+    <button id="sp-more" class="search-load-more-btn" type="button" onclick="spRenderMore()"></button>
+    <div id="sp-empty">
+      <div class="sp-empty-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><path d="M8.5 11h5"/></svg></div>
+      <div class="sp-empty-title">לא נמצאו תוצאות</div>
+      <div class="sp-empty-sub" id="sp-empty-sub"></div>
+      <button id="sp-empty-reset" type="button" onclick="spResetFilters()">נקה סינונים</button>
+    </div>
+  </div>
+</div>
 
 <button id="scroll-bottom-btn" onclick="scrollToBottom()">
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14"/><path d="m6 13 6 6 6-6"/></svg>
@@ -1263,6 +1290,7 @@ function fetchMessages() {
       const hadNew = newMsgCount > 0 && !firstLoad;
 
       allMessages = msgsDeduped;
+      if (searchPageOpen && spNeedsData) runSearch();
       updateFilterBar();
 
       if (firstLoad) {
@@ -1296,7 +1324,6 @@ function fetchMessages() {
 
 // FIX: append only the new tail messages — never touch existing DOM
 function appendNewMessages(count) {
-  if (searchActive) return;
   const msgs = getFilteredMsgs();
   if (!msgs.length || count <= 0) return;
 
@@ -1378,7 +1405,6 @@ function filterChannel(channel, btn) {
     onFilterSearch('');
   }
 
-  if (searchActive) runMessageSearch();
 }
 
 // ── Mobile filter panel (opens on tap instead of permanently covering the screen) ──
@@ -1410,195 +1436,379 @@ function onFilterSearch(query) {
   });
 }
 
-// ── Message search (header search button) ──
-let searchQuery = '';
-let searchDepth = parseInt(localStorage.getItem('feed_search_depth_v1') || '300', 10);
-let searchActive = false;
-const EMPTY_DEFAULT_TEXT = document.getElementById('empty').textContent;
+// ── Rich text: [text](url), <a href>, **bold**, __italic__, ~~strike~~, `code`, bare URLs ──
+const MD_LINK_RE = /\[([^\]\n]+)\]\(\s*<?((?:[^\s()<>]|\([^\s()<>]*\))+)>?\s*\)/g;
+const URL_RE = /https?:\/\/[^\s<>"]+[^\s<>"'.,;:!?)\]}]/g;
+function safeUrl(u) {
+  u = String(u || '').trim();
+  return /^(https?:\/\/|mailto:|tel:|tg:\/\/)/i.test(u) ? u : null;
+}
+function shortUrl(u) {
+  const s = u.replace(/^https?:\/\/(www\.)?/i, '').replace(/\/$/, '');
+  return s.length > 42 ? s.slice(0, 40) + '…' : s;
+}
+function inlineFmt(s) {
+  return s
+    .replace(/\*\*(\S(?:[\s\S]*?\S)?)\*\*/g, '<strong>$1</strong>')
+    .replace(/__(\S(?:[\s\S]*?\S)?)__/g, '<em>$1</em>')
+    .replace(/~~(\S(?:[\s\S]*?\S)?)~~/g, '<s>$1</s>')
+    .replace(/&lt;(b|strong)&gt;([\s\S]*?)&lt;\/\1&gt;/gi, '<strong>$2</strong>')
+    .replace(/&lt;(i|em)&gt;([\s\S]*?)&lt;\/\1&gt;/gi, '<em>$2</em>')
+    .replace(/&lt;u&gt;([\s\S]*?)&lt;\/u&gt;/gi, '<u>$1</u>')
+    .replace(/&lt;(s|strike|del)&gt;([\s\S]*?)&lt;\/\1&gt;/gi, '<s>$2</s>');
+}
+function richText(raw) {
+  const stash = [];
+  const put = h => '\u0001' + (stash.push(h) - 1) + '\u0002';
+  const mkLink = (label, url) => {
+    const u = safeUrl(url);
+    const l = inlineFmt(esc(label));
+    return put(u ? `<a href="${esc(u)}" target="_blank" rel="noopener noreferrer" title="${esc(u)}">${l}</a>` : l);
+  };
+  let s = String(raw || '');
+  s = s.replace(/`([^`\n]+)`/g, (m, c) => put('<code>' + esc(c) + '</code>'));
+  s = s.replace(MD_LINK_RE, (m, l, u) => mkLink(l, u));
+  s = s.replace(/<a\s[^>]*?href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi, (m, u, l) => mkLink(l.replace(/<[^>]+>/g, ''), u));
+  s = s.replace(URL_RE, u => put(`<a href="${esc(u)}" target="_blank" rel="noopener noreferrer" title="${esc(u)}">${esc(shortUrl(u))}</a>`));
+  let out = inlineFmt(esc(s));
+  for (let i = 0; i < 3 && /\u0001\d+\u0002/.test(out); i++) out = out.replace(/\u0001(\d+)\u0002/g, (m, k) => stash[+k]);
+  return out;
+}
+// Visible text of a message (what the user actually reads), used for matching
+function spPlain(m) {
+  if (m._p !== undefined) return m._p;
+  let t = decodeEntities(stripChannelSig(m.text || '', m.channel));
+  t = t.replace(MD_LINK_RE, '$1')
+       .replace(/<a\s[^>]*>|<\/a>|<\/?(?:b|strong|i|em|u|s|strike|del|code)>/gi, '')
+       .replace(URL_RE, u => shortUrl(u))
+       .replace(/\*\*|__|~~|`/g, '');
+  return (m._p = t);
+}
 
-// FIX: search used to re-filter and rebuild every matching card, for every message
-// scanned, on every single keystroke — with no limit on how many cards it built at
-// once. With a big search depth (or "הכל") that meant thousands of DOM nodes (some
-// with images/iframes) built synchronously on each keypress, which is what froze the
-// tab. Now: (1) the actual search is debounced so it only runs once typing pauses,
-// and (2) results are rendered in small pages, with older matches revealed on demand
-// instead of all at once.
-const SEARCH_DEBOUNCE_MS = 220;
-const SEARCH_PAGE_SIZE = 30;
-let searchDebounceTimer = null;
-let searchResultsAll = [];
-let searchRenderedCount = 0;
-let searchLoadingMore = false;
-
-function toggleSearchPanel() {
-  const panel = document.getElementById('search-panel');
-  const btn = document.getElementById('search-toggle-btn');
-  const isOpen = panel.classList.toggle('open');
-  btn.classList.toggle('active', isOpen);
-  if (isOpen) {
-    syncDepthChips();
-    requestAnimationFrame(() => {
-      const input = document.getElementById('search-input');
-      if (input) input.focus();
+// ── Search: term regexes (tolerant to niqqud, quote styles, dashes) and highlighting ──
+function termRegex(term, flags) {
+  let out = '';
+  for (const ch of term) {
+    if (/["״”“]/.test(ch)) out += '["״”“]';
+    else if (/['׳’‘`]/.test(ch)) out += "['׳’‘`]";
+    else if (/[-–—‑]/.test(ch)) out += '[-–—‑]';
+    else if (/\s/.test(ch)) out += '\\s+';
+    else out += ch.replace(/[.*+?^${}()|[\]\\\/]/g, '\\$&');
+    if (/[\u05D0-\u05EA]/.test(ch)) out += '[\u0591-\u05C7]*';
+  }
+  return new RegExp(out, flags);
+}
+function parseQuery(q) {
+  const must = [], not = [];
+  const re = /(-?)(?:"([^"]+)"|“([^”]+)”|(\S+))/g;
+  let m;
+  while ((m = re.exec(q))) {
+    const t = (m[2] || m[3] || m[4] || '').trim();
+    if (!t) continue;
+    (m[1] === '-' ? not : must).push(t);
+  }
+  return { must, not };
+}
+function highlightIn(root, res) {
+  if (!root || !res || !res.length) return;
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  const nodes = [];
+  while (walker.nextNode()) nodes.push(walker.currentNode);
+  nodes.forEach(node => {
+    const t = node.nodeValue, ranges = [];
+    res.forEach(re => {
+      re.lastIndex = 0;
+      let m;
+      while ((m = re.exec(t))) {
+        if (!m[0]) { re.lastIndex++; continue; }
+        ranges.push([m.index, m.index + m[0].length]);
+      }
     });
-  } else {
-    clearMessageSearch();
+    if (!ranges.length) return;
+    ranges.sort((a, b) => a[0] - b[0]);
+    const merged = [ranges[0].slice()];
+    for (let i = 1; i < ranges.length; i++) {
+      const last = merged[merged.length - 1];
+      if (ranges[i][0] <= last[1]) last[1] = Math.max(last[1], ranges[i][1]);
+      else merged.push(ranges[i].slice());
+    }
+    const frag = document.createDocumentFragment();
+    let pos = 0;
+    merged.forEach(([a, b]) => {
+      if (a > pos) frag.appendChild(document.createTextNode(t.slice(pos, a)));
+      const mk = document.createElement('mark');
+      mk.className = 'hl';
+      mk.textContent = t.slice(a, b);
+      frag.appendChild(mk);
+      pos = b;
+    });
+    if (pos < t.length) frag.appendChild(document.createTextNode(t.slice(pos)));
+    node.parentNode.replaceChild(frag, node);
+  });
+}
+function msgTs(m) {
+  if (m._t !== undefined) return m._t;
+  let t = 0;
+  const raw = m.postTime;
+  try {
+    let mm;
+    if (typeof raw === 'string' && raw.startsWith('Date(')) {
+      const p = raw.slice(5, -1).split(',').map(Number);
+      t = new Date(p[0], p[1], p[2], p[3] || 0, p[4] || 0).getTime();
+    } else if (typeof raw === 'string' && (mm = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+(\d{1,2}):(\d{2}))?/))) {
+      t = new Date(+mm[3], +mm[2] - 1, +mm[1], +mm[4] || 0, +mm[5] || 0).getTime();
+    } else {
+      t = new Date(raw).getTime();
+    }
+  } catch (e) {}
+  return (m._t = isNaN(t) ? 0 : t);
+}
+
+// ── Dedicated search page ──
+const SP_PAGE = 30;
+const SP_RECENT_KEY = 'feed_recent_searches_v1';
+const spState = { q: '', time: 0, media: 'all', channel: 'all', newestFirst: true };
+let searchPageOpen = false, spResults = [], spShown = 0, spHl = [];
+let spTimer = null, spSaveTimer = null, spSavedScroll = 0, spNeedsData = false, spMoreObs = null;
+
+function spEl(id) { return document.getElementById(id); }
+
+function openSearchPage(q, noPush) {
+  if (searchPageOpen) { spEl('sp-input').focus(); return; }
+  spSavedScroll = window.scrollY;
+  searchPageOpen = true;
+  document.body.classList.add('search-mode');
+  if (noPush && typeof q !== 'string' && location.hash.startsWith('#search=')) {
+    try { q = decodeURIComponent(location.hash.slice(8)); } catch (e) {}
   }
+  if (!noPush) history.pushState({ sp: 1 }, '', '#search' + (spState.q ? '=' + encodeURIComponent(spState.q) : ''));
+  if (typeof q === 'string') { spState.q = q; spEl('sp-input').value = q; }
+  spEl('sp-input-wrap').classList.toggle('has-value', !!spState.q);
+  window.scrollTo(0, 0);
+  spRenderRecent();
+  runSearch();
+  requestAnimationFrame(() => spEl('sp-input').focus());
 }
-
-function closeSearchPanel() {
-  const panel = document.getElementById('search-panel');
-  const btn = document.getElementById('search-toggle-btn');
-  if (!panel || !panel.classList.contains('open')) return;
-  panel.classList.remove('open');
-  btn.classList.remove('active');
-  clearMessageSearch();
+function hideSearchPage(skipScroll) {
+  searchPageOpen = false;
+  document.body.classList.remove('search-mode');
+  if (!skipScroll) window.scrollTo(0, spSavedScroll);
 }
-
-document.addEventListener('click', (e) => {
-  const panel = document.getElementById('search-panel');
-  const btn = document.getElementById('search-toggle-btn');
-  if (!panel || !panel.classList.contains('open')) return;
-  if (panel.contains(e.target) || (btn && btn.contains(e.target))) return;
-  closeSearchPanel();
+function closeSearchPage() {
+  if (!searchPageOpen) return;
+  if (history.state && history.state.sp) { history.back(); return; }
+  hideSearchPage();
+  history.replaceState(null, '', location.pathname + location.search);
+}
+window.addEventListener('popstate', () => {
+  const inSearch = location.hash.startsWith('#search');
+  if (searchPageOpen && !inSearch) hideSearchPage();
+  else if (!searchPageOpen && inSearch) openSearchPage(undefined, true);
+});
+document.addEventListener('keydown', e => {
+  const granted = document.documentElement.classList.contains('access-granted');
+  if (!granted) return;
+  const tag = (e.target.tagName || '').toLowerCase();
+  const typing = tag === 'input' || tag === 'textarea' || e.target.isContentEditable;
+  if (e.key === 'Escape' && searchPageOpen && !spEl('lightbox').classList.contains('open')) closeSearchPage();
+  else if ((e.key === '/' && !typing && !searchPageOpen) || ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k')) {
+    e.preventDefault();
+    openSearchPage();
+  } else if (e.key === 'Enter' && e.target.id === 'sp-input') spSaveRecent(spState.q);
 });
 
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') closeSearchPanel();
-});
+function spOnInput(v) {
+  spState.q = v;
+  spEl('sp-input-wrap').classList.toggle('has-value', !!v);
+  clearTimeout(spTimer);
+  spTimer = setTimeout(runSearch, v.trim() ? 160 : 0);
+}
+function spClear() {
+  spState.q = '';
+  const inp = spEl('sp-input');
+  inp.value = '';
+  spEl('sp-input-wrap').classList.remove('has-value');
+  clearTimeout(spTimer);
+  runSearch();
+  inp.focus();
+}
+function spToggleSort() { spState.newestFirst = !spState.newestFirst; runSearch(); }
+function spResetFilters() { spState.time = 0; spState.media = 'all'; spState.channel = 'all'; runSearch(); }
 
-function syncDepthChips() {
-  document.querySelectorAll('.depth-chip').forEach(chip => {
-    chip.classList.toggle('active', parseInt(chip.dataset.depth, 10) === searchDepth);
+function spGetRecent() {
+  try { return JSON.parse(localStorage.getItem(SP_RECENT_KEY) || '[]'); } catch (e) { return []; }
+}
+function spSaveRecent(q) {
+  q = (q || '').trim();
+  if (q.length < 2) return;
+  const list = spGetRecent().filter(x => x !== q);
+  list.unshift(q);
+  try { localStorage.setItem(SP_RECENT_KEY, JSON.stringify(list.slice(0, 8))); } catch (e) {}
+}
+function spClearRecent() {
+  try { localStorage.removeItem(SP_RECENT_KEY); } catch (e) {}
+  spRenderRecent();
+}
+function spRenderRecent() {
+  const list = spGetRecent();
+  spEl('sp-recent-card').style.display = list.length ? 'block' : 'none';
+  const box = spEl('sp-recent-list');
+  box.innerHTML = '';
+  list.forEach(q => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'sp-chip';
+    b.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>${esc(q)}</span>`;
+    b.onclick = () => { spState.q = q; spEl('sp-input').value = q; spEl('sp-input-wrap').classList.add('has-value'); runSearch(); };
+    box.appendChild(b);
   });
 }
 
-function setSearchDepth(depth, btn) {
-  searchDepth = depth;
-  try { localStorage.setItem('feed_search_depth_v1', String(depth)); } catch (e) {}
-  document.querySelectorAll('.depth-chip').forEach(c => c.classList.remove('active'));
-  btn.classList.add('active');
-  clearTimeout(searchDebounceTimer);
-  if (searchQuery) runMessageSearch();
+spEl('sp-filters').addEventListener('click', e => {
+  const b = e.target.closest('.sp-chip');
+  if (!b || !b.dataset.kind) return;
+  const k = b.dataset.kind;
+  spState[k] = k === 'time' ? +b.dataset.v : b.dataset.v;
+  runSearch();
+});
+
+function spShow(landing, summary, empty) {
+  spEl('sp-landing').style.display = landing ? 'flex' : 'none';
+  spEl('sp-summary').style.display = summary ? 'flex' : 'none';
+  spEl('sp-empty').style.display = empty ? 'block' : 'none';
+  spEl('sp-chan-row').style.display = landing ? 'none' : 'flex';
+  if (landing || empty) { spEl('sp-results').innerHTML = ''; spEl('sp-more').style.display = 'none'; }
 }
 
-function onMessageSearch(value) {
-  searchQuery = value.trim();
-  document.getElementById('search-input-wrap').classList.toggle('has-value', !!value);
-  clearTimeout(searchDebounceTimer);
-  if (!searchQuery) {
-    // Going back to the full feed should feel instant, not wait out the debounce.
-    runMessageSearch();
-    return;
-  }
-  searchDebounceTimer = setTimeout(runMessageSearch, SEARCH_DEBOUNCE_MS);
-}
-
-function clearMessageSearch() {
-  clearTimeout(searchDebounceTimer);
-  searchQuery = '';
-  searchActive = false;
-  searchResultsAll = [];
-  searchRenderedCount = 0;
-  const input = document.getElementById('search-input');
-  if (input) input.value = '';
-  const wrap = document.getElementById('search-input-wrap');
-  if (wrap) wrap.classList.remove('has-value');
-  const countEl = document.getElementById('search-result-count');
-  if (countEl) countEl.textContent = '';
-  document.getElementById('empty').textContent = EMPTY_DEFAULT_TEXT;
-  renderFeed(false);
-}
-
-function runMessageSearch() {
-  const countEl = document.getElementById('search-result-count');
-  if (!searchQuery) {
-    searchActive = false;
-    if (countEl) countEl.textContent = '';
-    document.getElementById('empty').textContent = EMPTY_DEFAULT_TEXT;
-    renderFeed(false);
-    return;
-  }
-  searchActive = true;
-  const pool = getFilteredMsgs();
-  const scanned = searchDepth > 0 ? pool.slice(-searchDepth) : pool;
-  const q = searchQuery.toLowerCase();
-  const results = scanned.filter(m => {
-    const cleanText = decodeEntities(stripChannelSig(m.text, m.channel)).toLowerCase();
-    return cleanText.includes(q) || (m.channel || '').toLowerCase().includes(q);
+function runSearch() {
+  const q = spState.q.trim();
+  try { history.replaceState(history.state, '', '#search' + (q ? '=' + encodeURIComponent(q) : '')); } catch (e) {}
+  document.querySelectorAll('#sp-filters .sp-chip[data-kind]').forEach(b => {
+    const k = b.dataset.kind;
+    b.classList.toggle('active', String(spState[k]) === b.dataset.v);
   });
+  spEl('sp-sort-label').textContent = spState.newestFirst ? 'החדשות ראשונות' : 'הישנות ראשונות';
 
-  if (countEl) {
-    countEl.textContent = results.length
-      ? `נמצאו ${results.length} מתוך ${scanned.length} ההודעות האחרונות`
-      : `אין תוצאות מתוך ${scanned.length} ההודעות האחרונות`;
+  const pq = parseQuery(q);
+  const hasQ = pq.must.length || pq.not.length;
+  const filtersOn = spState.time || spState.media !== 'all' || spState.channel !== 'all';
+  clearTimeout(spSaveTimer);
+  if (!hasQ && !filtersOn) { spShow(true, false, false); return; }
+  if (!allMessages.length) { spNeedsData = true; spShow(false, false, false); return; }
+  spNeedsData = false;
+  if (!Object.keys(channelSigs).length) buildChannelSignatures();
+
+  const cutoff = spState.time ? Date.now() - spState.time * 3600000 : 0;
+  const mustRe = pq.must.map(t => termRegex(t, 'i'));
+  const notRe = pq.not.map(t => termRegex(t, 'i'));
+  const base = [];
+  for (const m of allMessages) {
+    if (cutoff && msgTs(m) < cutoff) continue;
+    if (spState.media === 'image' && !m.imageUrl) continue;
+    if (spState.media === 'video' && !m.driveUrl) continue;
+    if (spState.media === 'link' && !/https?:\/\//i.test(m.text || '')) continue;
+    if (mustRe.length || notRe.length) {
+      const hay = (m.channel || '') + '\n' + spPlain(m);
+      let ok = true;
+      for (const r of mustRe) if (!r.test(hay)) { ok = false; break; }
+      if (ok) for (const r of notRe) if (r.test(hay)) { ok = false; break; }
+      if (!ok) continue;
+    }
+    base.push(m);
   }
-  renderSearchResults(results);
-}
 
-function renderSearchResults(results) {
-  const feed = document.getElementById('feed');
-  const emptyEl = document.getElementById('empty');
-  document.getElementById('loading').style.display = 'none';
-  feed.querySelectorAll('.msg-card, .date-divider, #search-load-more-btn').forEach(el => el.remove());
+  const counts = new Map();
+  base.forEach(m => counts.set(m.channel, (counts.get(m.channel) || 0) + 1));
+  spRenderChannels(counts, base.length);
 
-  searchResultsAll = results;
-  searchRenderedCount = 0;
+  const filtered = spState.channel === 'all' ? base : base.filter(m => m.channel === spState.channel);
+  spResults = spState.newestFirst ? filtered.slice().reverse() : filtered;
+  spHl = pq.must.map(t => termRegex(t, 'gi'));
+  spShown = 0;
 
-  if (!results.length) {
-    emptyEl.textContent = 'לא נמצאו תוצאות בטווח החיפוש שנבחר';
-    emptyEl.style.display = 'block';
+  if (!spResults.length) {
+    spShow(false, false, true);
+    spEl('sp-empty-sub').textContent = hasQ ? 'נסו מילים אחרות, קיצור של המילה, או הסרה של סינונים' : 'אין הודעות שמתאימות לסינון שנבחר';
+    spEl('sp-empty-reset').style.display = filtersOn ? 'inline-block' : 'none';
     return;
   }
-  emptyEl.style.display = 'none';
-
-  // Show only the most recent matches first — same newest-at-the-bottom convention
-  // as the normal feed — and reveal older matches on demand instead of building
-  // every result at once.
-  searchRenderedCount = Math.min(SEARCH_PAGE_SIZE, results.length);
-  const startIdx = results.length - searchRenderedCount;
-  appendMsgsRange(feed, results, startIdx, results.length - 1, true);
-  setupVideoObserver();
-  renderSearchLoadMoreBtn();
+  spShow(false, true, false);
+  const n = spResults.length;
+  const chCount = spState.channel === 'all' ? counts.size : 1;
+  spEl('sp-count').innerHTML = (n === 1 ? 'נמצאה <b>תוצאה אחת</b>' : `נמצאו <b>${n.toLocaleString('he-IL')}</b> תוצאות`) + (chCount > 1 ? ` ב־${chCount} ערוצים` : '');
+  spEl('sp-results').innerHTML = '';
+  spRenderMore();
+  if (hasQ && q.length >= 2) spSaveTimer = setTimeout(() => spSaveRecent(q), 1500);
 }
 
-function renderSearchLoadMoreBtn() {
-  const feed = document.getElementById('feed');
-  const old = document.getElementById('search-load-more-btn');
-  if (old) old.remove();
-
-  const remaining = searchResultsAll.length - searchRenderedCount;
-  if (remaining <= 0) return;
-
-  const btn = document.createElement('button');
-  btn.id = 'search-load-more-btn';
-  btn.className = 'search-load-more-btn';
-  btn.type = 'button';
-  btn.textContent = `הצג ${Math.min(SEARCH_PAGE_SIZE, remaining)} תוצאות ישנות יותר`;
-  btn.onclick = loadMoreSearchResults;
-  feed.insertBefore(btn, feed.firstChild);
+function spRenderChannels(counts, total) {
+  const box = spEl('sp-channels');
+  const chans = [...counts.entries()].sort((a, b) => b[1] - a[1]);
+  if (spState.channel !== 'all' && !counts.has(spState.channel)) chans.unshift([spState.channel, 0]);
+  const chip = (val, label, n, avatar) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'sp-chip' + (spState.channel === val ? ' active' : '');
+    b.innerHTML = `${avatar || ''}<span>${esc(label)}</span><span class="n">${n.toLocaleString('he-IL')}</span>`;
+    b.onclick = () => { spState.channel = val; runSearch(); };
+    return b;
+  };
+  box.innerHTML = '';
+  box.appendChild(chip('all', 'כל הערוצים', total));
+  chans.forEach(([ch, n]) => {
+    const url = profiles[ch];
+    const av = url
+      ? `<img class="chip-avatar" src="${esc(url)}" alt="" onerror="this.style.display='none'">`
+      : `<span class="chip-avatar chip-avatar-fallback" style="${chStyle(ch)}">${esc(initials(ch))}</span>`;
+    box.appendChild(chip(ch, ch, n, av));
+  });
 }
 
-function loadMoreSearchResults() {
-  if (searchLoadingMore) return;
-  searchLoadingMore = true;
-
-  const feed = document.getElementById('feed');
-  const btn = document.getElementById('search-load-more-btn');
-  if (btn) btn.remove();
-
-  const toLoad = Math.min(SEARCH_PAGE_SIZE, searchResultsAll.length - searchRenderedCount);
-  const endIdx = searchResultsAll.length - searchRenderedCount - 1;
-  const startIdx = endIdx - toLoad + 1;
-
+function spRenderMore() {
+  const box = spEl('sp-results');
+  const end = Math.min(spShown + SP_PAGE, spResults.length);
+  let prevDate = spShown > 0 ? getDateStr(spResults[spShown - 1].postTime) : null;
   const frag = document.createDocumentFragment();
-  buildMsgsRange(searchResultsAll, startIdx, endIdx).forEach(n => frag.appendChild(n));
-  feed.insertBefore(frag, feed.firstChild);
-
-  searchRenderedCount += toLoad;
+  for (let i = spShown; i < end; i++) {
+    const ds = getDateStr(spResults[i].postTime);
+    if (ds && ds !== prevDate) {
+      const div = document.createElement('div');
+      div.className = 'date-divider';
+      div.textContent = ds;
+      frag.appendChild(div);
+      prevDate = ds;
+    }
+    frag.appendChild(buildCard(spResults, i, spHl));
+  }
+  box.appendChild(frag);
+  spShown = end;
   setupVideoObserver();
-  renderSearchLoadMoreBtn();
-  searchLoadingMore = false;
+  const more = spEl('sp-more');
+  const rem = spResults.length - spShown;
+  more.style.display = rem > 0 ? 'block' : 'none';
+  if (rem > 0) more.textContent = `הצג עוד ${Math.min(SP_PAGE, rem)} תוצאות (${rem.toLocaleString('he-IL')} נותרו)`;
+  if (!spMoreObs) {
+    spMoreObs = new IntersectionObserver(es => {
+      if (es[0].isIntersecting && searchPageOpen && spShown < spResults.length) spRenderMore();
+    }, { rootMargin: '500px' });
+    spMoreObs.observe(more);
+  }
+}
+
+// Jump from a search result to the message inside the regular feed
+function jumpToMessage(m) {
+  const idx = allMessages.findIndex(x => x.channel === m.channel && x.postTime === m.postTime && x.text === m.text);
+  if (idx < 0) { showToast('ההודעה לא נמצאה'); return; }
+  const need = allMessages.length - idx;
+  if (need > 2000) {
+    if (m.tgUrl) openSource(m.tgUrl); else showToast('ההודעה ישנה מדי להצגה בפיד');
+    return;
+  }
+  hideSearchPage(true);
+  if (activeChannel !== 'all') filterChannel('all', document.querySelector('.filter-chip[data-channel="all"]'));
+  renderFeed(false, false, need + 5);
+  history.replaceState(null, '', '#msg-' + msgToId(m));
+  setTimeout(scrollToLinkedMsg, 60);
 }
 
 // ── Signature detection (frequency-based) ──
@@ -1713,13 +1923,14 @@ function getFilteredMsgs() {
   return allMessages.filter(m => m.channel === activeChannel);
 }
 
-function buildCard(msgs, idx) {
+function buildCard(msgs, idx, hl) {
+  const sm = Array.isArray(hl);
   const m = msgs[idx];
   const card = document.createElement('div');
   card.className = 'msg-card';
 
   const msgId = msgToId(m);
-  card.id = 'msg-' + msgId;
+  card.id = (sm ? 'sr-' : 'msg-') + msgId;
 
   const avatarUrl = profiles[m.channel];
   let smallAvatarHtml;
@@ -1734,7 +1945,7 @@ function buildCard(msgs, idx) {
   const mainText = decodeEntities(stripChannelSig(m.text, m.channel));
 
   let bubbleHtml = '';
-  if (mainText) bubbleHtml += `<div class="msg-text">${linkify(esc(mainText))}</div>`;
+  if (mainText) bubbleHtml += `<div class="msg-text">${richText(mainText)}</div>`;
 
   if (m.imageUrl) {
     bubbleHtml += `<div class="msg-image-wrap">
@@ -1782,7 +1993,13 @@ function buildCard(msgs, idx) {
       </button>`
     : '';
 
-  bubbleHtml += `<div class="msg-actions">${copyPageLinkBtn}${openSourceBtn}${copyTextBtn}</div>`;
+  const jumpBtn = sm
+    ? `<button class="action-btn jump-btn" data-tooltip="הצג בפיד">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg>
+      </button>`
+    : '';
+
+  bubbleHtml += `<div class="msg-actions">${jumpBtn}${copyPageLinkBtn}${openSourceBtn}${copyTextBtn}</div>`;
 
   card.innerHTML = `
     <div class="msg-avatar-col">
@@ -1803,6 +2020,13 @@ function buildCard(msgs, idx) {
     ctBtn.addEventListener('click', function() {
       copyText(this, decodeEntities(msgs[parseInt(this.dataset.idx)]?.text || ''));
     });
+  }
+
+  if (sm) {
+    const jb = card.querySelector('.jump-btn');
+    if (jb) jb.addEventListener('click', () => jumpToMessage(msgs[idx]));
+    highlightIn(card.querySelector('.msg-text'), hl);
+    highlightIn(card.querySelector('.msg-channel'), hl);
   }
 
   return card;
@@ -1828,7 +2052,7 @@ function setupVideoObserver() {
   });
 }
 
-function renderFeed(scrollAfter = false, preserveScroll = false) {
+function renderFeed(scrollAfter = false, preserveScroll = false, minCount = 0) {
   const feed = document.getElementById('feed');
   document.getElementById('loading').style.display = 'none';
 
@@ -1845,7 +2069,7 @@ function renderFeed(scrollAfter = false, preserveScroll = false) {
 
   feed.querySelectorAll('.msg-card, .date-divider, #search-load-more-btn').forEach(el => el.remove());
 
-  renderedCount = Math.min(PAGE_SIZE, msgs.length);
+  renderedCount = Math.min(Math.max(PAGE_SIZE, minCount), msgs.length);
   const startIdx = msgs.length - renderedCount;
 
   appendMsgsRange(feed, msgs, startIdx, msgs.length - 1, true);
@@ -1946,7 +2170,7 @@ initAccessGate();
 
 // Prepend older messages when user scrolls to top
 function loadMoreMessages() {
-  if (isLoadingMore || searchActive) return;
+  if (isLoadingMore || searchPageOpen) return;
   const msgs = getFilteredMsgs();
   if (renderedCount >= msgs.length) return;
 
@@ -2167,9 +2391,10 @@ function initials(name) {
 }
 function setStatus(msg, ok) {
   document.getElementById('status-text').textContent = msg;
-  const dot = document.getElementById('status-dot');
-  dot.style.background = ok ? '#4caf50' : '#e53935';
-  if (ok) dot.classList.add('pulse'); else dot.classList.remove('pulse');
+  const pill = document.getElementById('status-pill');
+  pill.classList.toggle('ok', !!ok);
+  pill.classList.toggle('err', !ok);
+  document.getElementById('status-dot').classList.toggle('pulse', !!ok);
 }
 
 // Forces an actual download instead of letting the browser just open the file in a new tab
@@ -2207,6 +2432,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbo
 async function init() {
   await loadProfiles();
   fetchMessages();
+  if (location.hash.startsWith('#search') && !searchPageOpen) openSearchPage(undefined, true);
   setInterval(fetchMessages, POLL_INTERVAL);
 }
 </script>
