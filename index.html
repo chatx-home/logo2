@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <script>
   try {
-    if (localStorage.getItem('feed_access_granted_v1') === '1') {
+    if (localStorage.getItem('feed_access_key_v2')) {
       document.documentElement.classList.add('access-granted');
       document.title = 'פיד חדשות';
     }
@@ -1195,16 +1195,8 @@ mark.hl{background:#ffe98a;color:inherit;border-radius:4px;padding:1px 2px;margi
 // מנע שחזור גלילה אוטומטי של הדפדפן — אנחנו שולטים בזה
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 
-window.google = window.google || {};
-window.google.visualization = window.google.visualization || {};
-window.google.visualization.Query = window.google.visualization.Query || {
-  setResponse: function(json) { if (window._cb) window._cb(json); }
-};
-
-const SPREADSHEET_ID = '1YRILAI8d_TYKXSOnioXoFPbc9TS68Mw0NCC9-DETXRk';
+const DATA_URL = 'https://script.google.com/macros/s/AKfycbytyPPGQ1bEjT77RVuq2amJgYzEwugkqWbxcm2aHjfdjYghnuaCODsFYXE3-4MqNjm9Tg/exec';
 const POLL_INTERVAL = 30000;
-const MESSAGES_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=Messages&tqx=responseHandler:_cb`;
-const PROFILES_URL  = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=Profiles&tqx=responseHandler:_cb`;
 
 let profiles = {};
 let allMessages = [];
@@ -1229,26 +1221,32 @@ function checkScroll() {
   }
 }
 
+// ── Data API (Apps Script web app) ──
+function apiGet(type) {
+  if (!DATA_URL || DATA_URL.indexOf('PASTE_') === 0) return Promise.reject(new Error('DATA_URL not set'));
+  let key = '';
+  try { key = localStorage.getItem(ACCESS_STORAGE_KEY) || ''; } catch (e) {}
+  const ctrl = new AbortController();
+  const tm = setTimeout(() => ctrl.abort(), 25000);
+  return fetch(DATA_URL + '?type=' + type + '&key=' + encodeURIComponent(key) + '&_=' + Date.now(), { signal: ctrl.signal })
+    .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(d => {
+      if (d && d.error === 'unauthorized') { revokeAccess(); throw new Error('unauthorized'); }
+      if (d && d.error) throw new Error(d.error);
+      return d;
+    })
+    .finally(() => clearTimeout(tm));
+}
+
 // ── Profiles ──
 function loadProfiles() {
-  return new Promise(resolve => {
-    const old = document.getElementById('_gviz_profiles');
-    if (old) old.remove();
-    window._cb = function(json) {
-      try {
-        (json.table.rows || []).forEach(row => {
-          const name = row.c[0]?.v?.trim();
-          const url  = row.c[1]?.v?.trim();
-          if (name && url) profiles[name] = url;
-        });
-      } catch(e) {}
-      resolve();
-    };
-    const s = document.createElement('script');
-    s.id = '_gviz_profiles';
-    s.src = PROFILES_URL + '&_=' + Date.now();
-    document.head.appendChild(s);
-  });
+  return apiGet('profiles').then(d => {
+    (d.rows || []).forEach(r => {
+      const name = String(r[0] || '').trim();
+      const url  = String(r[1] || '').trim();
+      if (name && url) profiles[name] = url;
+    });
+  }).catch(e => console.error('loadProfiles failed:', e));
 }
 
 // ── Dedup identical messages (same channel + same content) ──
@@ -1268,19 +1266,17 @@ function dedupeMessages(msgs) {
 
 // ── Fetch ──
 function fetchMessages() {
-  const old = document.getElementById('_gviz_messages');
-  if (old) old.remove();
-  window._cb = function(json) {
+  apiGet('messages').then(json => {
     try {
-      const rows = json.table.rows || [];
-      const msgs = rows.map(row => ({
-        runTime:  row.c[0]?.v || '',
-        channel:  (row.c[1]?.v || '').trim(),
-        postTime: row.c[2]?.v || '',
-        text:     row.c[3]?.v || '',
-        imageUrl: row.c[4]?.v || '',
-        driveUrl: row.c[5]?.v || '',
-        tgUrl:    row.c[6]?.v || '',
+      const rows = json.rows || [];
+      const msgs = rows.map(r => ({
+        runTime:  r[0] || '',
+        channel:  String(r[1] || '').trim(),
+        postTime: r[2] || '',
+        text:     r[3] || '',
+        imageUrl: r[4] || '',
+        driveUrl: r[5] || '',
+        tgUrl:    r[6] || '',
       })).filter(m => m.text || m.imageUrl || m.driveUrl);
 
       const msgsDeduped = dedupeMessages(msgs);
@@ -1299,27 +1295,31 @@ function fetchMessages() {
         lastMessageCount = newCount;
         setStatus('מחובר', true);
       } else if (hadNew) {
-        // FIX: always append new messages smoothly without full re-render
         appendNewMessages(newMsgCount);
         lastMessageCount = newCount;
 
         if (isUserScrolledUp) {
-          // User is reading old content — show banner
           showNewBanner(newMsgCount);
         } else {
-          // User is at bottom — silently scroll to keep them there
           window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
         }
       }
       setStatus('מחובר', true);
-    } catch(e) {
+    } catch (e) {
+      console.error('fetchMessages failed:', e);
       setStatus('שגיאה בטעינה', false);
+      if (firstLoad) showLoadError();
     }
-  };
-  const s = document.createElement('script');
-  s.id = '_gviz_messages';
-  s.src = MESSAGES_URL + '&_=' + Date.now();
-  document.head.appendChild(s);
+  }).catch(e => {
+    console.error('fetchMessages request failed:', e);
+    setStatus('שגיאה בטעינה', false);
+    if (firstLoad) showLoadError();
+  });
+}
+
+function showLoadError() {
+  const l = document.getElementById('loading');
+  if (l) l.innerHTML = '<div style="padding:40px 20px;text-align:center;color:var(--muted);font-size:15px">לא ניתן לטעון את ההודעות. בדוק שכתובת האפליקציה (DATA_URL) הוגדרה נכון ושהפריסה פתוחה ל-Anyone.<br><br><button onclick="location.reload()" style="padding:10px 22px;border:0;border-radius:12px;background:var(--accent);color:#fff;font-family:inherit;font-size:14px;cursor:pointer">נסה שוב</button></div>';
 }
 
 // FIX: append only the new tail messages — never touch existing DOM
@@ -2090,14 +2090,18 @@ function renderFeed(scrollAfter = false, preserveScroll = false, minCount = 0) {
   }
 }
 
-const ACCESS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwcjjlswMyiyzHU_FON4019dJWYTxA_mB6zZ9LlsBrpjj9Mx_zBzSwO69sOF-WB3h9zsQ/exec";
-const ACCESS_STORAGE_KEY = "feed_access_granted_v1";
+const ACCESS_STORAGE_KEY = "feed_access_key_v2";
 
-function grantAccess() {
-  try { localStorage.setItem(ACCESS_STORAGE_KEY, '1'); } catch (e) {}
+function grantAccess(pwd) {
+  try { localStorage.setItem(ACCESS_STORAGE_KEY, pwd); } catch (e) {}
   document.documentElement.classList.add('access-granted');
   document.title = 'פיד חדשות';
   init();
+}
+
+function revokeAccess() {
+  try { localStorage.removeItem(ACCESS_STORAGE_KEY); } catch (e) {}
+  location.reload();
 }
 
 function setAccessError(msg) {
@@ -2144,7 +2148,7 @@ function initAccessGate() {
 
     let data;
     try {
-      const res = await fetch(ACCESS_SCRIPT_URL + '?key=' + encodeURIComponent(pwd));
+      const res = await fetch(DATA_URL + '?type=auth&key=' + encodeURIComponent(pwd));
       data = await res.json();
     } catch (err) {
       setAccessLoading(false);
@@ -2155,9 +2159,7 @@ function initAccessGate() {
     setAccessLoading(false);
 
     if (data.status === 'ok') {
-      grantAccess();
-    } else if (data.status === 'burned') {
-      setAccessError('סיסמה זו נחסמה');
+      grantAccess(pwd);
     } else {
       setAccessError('סיסמה שגויה');
       input.value = '';
