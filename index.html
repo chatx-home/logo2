@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <script>
   try {
-    if (localStorage.getItem('feed_access_key_v2')) {
+    if (localStorage.getItem('feed_access_granted_v3') === '1') {
       document.documentElement.classList.add('access-granted');
       document.title = 'פיד חדשות';
     }
@@ -1195,8 +1195,16 @@ mark.hl{background:#ffe98a;color:inherit;border-radius:4px;padding:1px 2px;margi
 // מנע שחזור גלילה אוטומטי של הדפדפן — אנחנו שולטים בזה
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 
-const DATA_URL = 'https://script.google.com/macros/s/AKfycbytyPPGQ1bEjT77RVuq2amJgYzEwugkqWbxcm2aHjfdjYghnuaCODsFYXE3-4MqNjm9Tg/exec';
+window.google = window.google || {};
+window.google.visualization = window.google.visualization || {};
+window.google.visualization.Query = window.google.visualization.Query || {
+  setResponse: function(json) { if (window._cb) window._cb(json); }
+};
+
+const SPREADSHEET_ID = '1LCoFfdU8tLx6GShiz9JKEcd_x-M0Gz9eJ0clL7GmcmQ';
 const POLL_INTERVAL = 30000;
+const MESSAGES_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?gid=0&tqx=out:json;responseHandler:_cb`;
+const PROFILES_URL  = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?sheet=Profiles&tqx=out:json;responseHandler:_cb`;
 
 let profiles = {};
 let allMessages = [];
@@ -1221,32 +1229,30 @@ function checkScroll() {
   }
 }
 
-// ── Data API (Apps Script web app) ──
-function apiGet(type) {
-  if (!DATA_URL || DATA_URL.indexOf('PASTE_') === 0) return Promise.reject(new Error('DATA_URL not set'));
-  let key = '';
-  try { key = localStorage.getItem(ACCESS_STORAGE_KEY) || ''; } catch (e) {}
-  const ctrl = new AbortController();
-  const tm = setTimeout(() => ctrl.abort(), 25000);
-  return fetch(DATA_URL + '?type=' + type + '&key=' + encodeURIComponent(key) + '&_=' + Date.now(), { signal: ctrl.signal })
-    .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-    .then(d => {
-      if (d && d.error === 'unauthorized') { revokeAccess(); throw new Error('unauthorized'); }
-      if (d && d.error) throw new Error(d.error);
-      return d;
-    })
-    .finally(() => clearTimeout(tm));
-}
-
 // ── Profiles ──
 function loadProfiles() {
-  return apiGet('profiles').then(d => {
-    (d.rows || []).forEach(r => {
-      const name = String(r[0] || '').trim();
-      const url  = String(r[1] || '').trim();
-      if (name && url) profiles[name] = url;
-    });
-  }).catch(e => console.error('loadProfiles failed:', e));
+  return new Promise(resolve => {
+    const old = document.getElementById('_gviz_profiles');
+    if (old) old.remove();
+    let done = false;
+    const finish = () => { if (done) return; done = true; clearTimeout(tm); resolve(); };
+    const tm = setTimeout(finish, 8000);
+    window._cb = function(json) {
+      try {
+        (json.table.rows || []).forEach(row => {
+          const name = row.c[0]?.v?.trim();
+          const url  = row.c[1]?.v?.trim();
+          if (name && url) profiles[name] = url;
+        });
+      } catch(e) {}
+      finish();
+    };
+    const s = document.createElement('script');
+    s.id = '_gviz_profiles';
+    s.onerror = finish;
+    s.src = PROFILES_URL + '&_=' + Date.now();
+    document.head.appendChild(s);
+  });
 }
 
 // ── Dedup identical messages (same channel + same content) ──
@@ -1266,17 +1272,20 @@ function dedupeMessages(msgs) {
 
 // ── Fetch ──
 function fetchMessages() {
-  apiGet('messages').then(json => {
+  const old = document.getElementById('_gviz_messages');
+  if (old) old.remove();
+  window._cb = function(json) {
     try {
-      const rows = json.rows || [];
-      const msgs = rows.map(r => ({
-        runTime:  r[0] || '',
-        channel:  String(r[1] || '').trim(),
-        postTime: r[2] || '',
-        text:     r[3] || '',
-        imageUrl: r[4] || '',
-        driveUrl: r[5] || '',
-        tgUrl:    r[6] || '',
+      if (!json || !json.table) throw new Error((json && json.errors && json.errors[0] && json.errors[0].detailed_message) || 'no table');
+      const rows = json.table.rows || [];
+      const msgs = rows.map(row => ({
+        runTime:  row.c[0]?.v || '',
+        channel:  (row.c[1]?.v || '').trim(),
+        postTime: row.c[2]?.v || '',
+        text:     row.c[3]?.v || '',
+        imageUrl: row.c[4]?.v || '',
+        driveUrl: row.c[5]?.v || '',
+        tgUrl:    row.c[6]?.v || '',
       })).filter(m => m.text || m.imageUrl || m.driveUrl);
 
       const msgsDeduped = dedupeMessages(msgs);
@@ -1295,31 +1304,35 @@ function fetchMessages() {
         lastMessageCount = newCount;
         setStatus('מחובר', true);
       } else if (hadNew) {
+        // FIX: always append new messages smoothly without full re-render
         appendNewMessages(newMsgCount);
         lastMessageCount = newCount;
 
         if (isUserScrolledUp) {
+          // User is reading old content — show banner
           showNewBanner(newMsgCount);
         } else {
+          // User is at bottom — silently scroll to keep them there
           window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
         }
       }
       setStatus('מחובר', true);
-    } catch (e) {
+    } catch(e) {
       console.error('fetchMessages failed:', e);
       setStatus('שגיאה בטעינה', false);
       if (firstLoad) showLoadError();
     }
-  }).catch(e => {
-    console.error('fetchMessages request failed:', e);
-    setStatus('שגיאה בטעינה', false);
-    if (firstLoad) showLoadError();
-  });
+  };
+  const s = document.createElement('script');
+  s.id = '_gviz_messages';
+  s.onerror = () => { setStatus('שגיאה בטעינה', false); if (firstLoad) showLoadError(); };
+  s.src = MESSAGES_URL + '&_=' + Date.now();
+  document.head.appendChild(s);
 }
 
 function showLoadError() {
   const l = document.getElementById('loading');
-  if (l) l.innerHTML = '<div style="padding:40px 20px;text-align:center;color:var(--muted);font-size:15px">לא ניתן לטעון את ההודעות. בדוק שכתובת האפליקציה (DATA_URL) הוגדרה נכון ושהפריסה פתוחה ל-Anyone.<br><br><button onclick="location.reload()" style="padding:10px 22px;border:0;border-radius:12px;background:var(--accent);color:#fff;font-family:inherit;font-size:14px;cursor:pointer">נסה שוב</button></div>';
+  if (l) l.innerHTML = '<div style="padding:40px 20px;text-align:center;color:var(--muted);font-size:15px">לא ניתן לטעון את ההודעות. בדוק שהגיליון משותף ל"כל מי שיש לו את הקישור" (צפייה).<br><br><button onclick="location.reload()" style="padding:10px 22px;border:0;border-radius:12px;background:var(--accent);color:#fff;font-family:inherit;font-size:14px;cursor:pointer">נסה שוב</button></div>';
 }
 
 // FIX: append only the new tail messages — never touch existing DOM
@@ -2090,18 +2103,59 @@ function renderFeed(scrollAfter = false, preserveScroll = false, minCount = 0) {
   }
 }
 
-const ACCESS_STORAGE_KEY = "feed_access_key_v2";
+function sha256(ascii) {
+  function rightRotate(value, amount) { return (value>>>amount) | (value<<(32-amount)); }
+  var mathPow = Math.pow, maxWord = mathPow(2, 32), lengthProperty = 'length', i, j, result = '';
+  var words = [], asciiBitLength = ascii[lengthProperty]*8;
+  var hash = [], k = [], primeCounter = 0;
+  var isComposite = {};
+  for (var candidate = 2; primeCounter < 64; candidate++) {
+    if (!isComposite[candidate]) {
+      for (i = 0; i < 313; i += candidate) isComposite[i] = candidate;
+      hash[primeCounter] = (mathPow(candidate, .5)*maxWord)|0;
+      k[primeCounter++] = (mathPow(candidate, 1/3)*maxWord)|0;
+    }
+  }
+  ascii += '\x80';
+  while (ascii[lengthProperty]%64 - 56) ascii += '\x00';
+  for (i = 0; i < ascii[lengthProperty]; i++) {
+    j = ascii.charCodeAt(i);
+    if (j>>8) return '';
+    words[i>>2] |= j << ((3 - i)%4)*8;
+  }
+  words[words[lengthProperty]] = ((asciiBitLength/maxWord)|0);
+  words[words[lengthProperty]] = (asciiBitLength);
+  for (j = 0; j < words[lengthProperty];) {
+    var w = words.slice(j, j += 16);
+    var oldHash = hash;
+    hash = hash.slice(0, 8);
+    for (i = 0; i < 64; i++) {
+      var w15 = w[i - 15], w2 = w[i - 2];
+      var a = hash[0], e = hash[4];
+      var temp1 = hash[7] + (rightRotate(e, 6) ^ rightRotate(e, 11) ^ rightRotate(e, 25)) + ((e&hash[5])^((~e)&hash[6])) + k[i] + (w[i] = (i < 16) ? w[i] : (w[i - 16] + (rightRotate(w15, 7) ^ rightRotate(w15, 18) ^ (w15>>>3)) + w[i - 7] + (rightRotate(w2, 17) ^ rightRotate(w2, 19) ^ (w2>>>10)))|0);
+      var temp2 = (rightRotate(a, 2) ^ rightRotate(a, 13) ^ rightRotate(a, 22)) + ((a&hash[1])^(a&hash[2])^(hash[1]&hash[2]));
+      hash = [(temp1 + temp2)|0].concat(hash);
+      hash[4] = (hash[4] + temp1)|0;
+    }
+    for (i = 0; i < 8; i++) hash[i] = (hash[i] + oldHash[i])|0;
+  }
+  for (i = 0; i < 8; i++) for (j = 3; j + 1; j--) { var b = (hash[i]>>(j*8))&255; result += ((b < 16) ? 0 : '') + b.toString(16); }
+  return result;
+}
 
-function grantAccess(pwd) {
-  try { localStorage.setItem(ACCESS_STORAGE_KEY, pwd); } catch (e) {}
+const ACCESS_STORAGE_KEY = "feed_access_granted_v3";
+const ACCESS_SALT = "feed|v3|";
+const ACCESS_HASH = "73c755fb7ab780a78ca83796bacefe93e332d135329428899fc67b95531f1e66";
+
+function checkPassword(pwd) {
+  return sha256(ACCESS_SALT + unescape(encodeURIComponent(pwd))) === ACCESS_HASH;
+}
+
+function grantAccess() {
+  try { localStorage.setItem(ACCESS_STORAGE_KEY, '1'); } catch (e) {}
   document.documentElement.classList.add('access-granted');
   document.title = 'פיד חדשות';
   init();
-}
-
-function revokeAccess() {
-  try { localStorage.removeItem(ACCESS_STORAGE_KEY); } catch (e) {}
-  location.reload();
 }
 
 function setAccessError(msg) {
@@ -2146,20 +2200,10 @@ function initAccessGate() {
     setAccessError(null);
     setAccessLoading(true);
 
-    let data;
-    try {
-      const res = await fetch(DATA_URL + '?type=auth&key=' + encodeURIComponent(pwd));
-      data = await res.json();
-    } catch (err) {
-      setAccessLoading(false);
-      setAccessError('שגיאת תקשורת — נסה/י שוב בעוד רגע');
-      return;
-    }
-
     setAccessLoading(false);
 
-    if (data.status === 'ok') {
-      grantAccess(pwd);
+    if (checkPassword(pwd)) {
+      grantAccess();
     } else {
       setAccessError('סיסמה שגויה');
       input.value = '';
